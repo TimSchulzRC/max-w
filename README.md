@@ -93,6 +93,12 @@ scripts/               icon generator
 Issues and pull requests are welcome. Please run `npm run build` (which typechecks via
 `tsc`) before opening a PR.
 
+## Support
+
+If you find max-w useful, you can support its development:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-FFDD00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/timschulz)
+
 ## License
 
 [MIT](LICENSE) © Tim Schulz
