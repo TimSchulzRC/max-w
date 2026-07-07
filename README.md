@@ -105,6 +105,11 @@ If you find max-w useful, you can support its development:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-FFDD00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/timschulz)
 
+## Privacy
+
+max-w collects no data and makes no network requests. Settings are stored with
+Chrome's own sync storage. See [PRIVACY.md](PRIVACY.md).
+
 ## License
 
 [MIT](LICENSE) © Tim Schulz
