@@ -11,6 +11,12 @@ is wrong.
 
 ![CI](https://github.com/TimSchulzRC/max-w/actions/workflows/ci.yml/badge.svg)
 
+## Screenshots
+
+| Light | Dark |
+| --- | --- |
+| <img src="assets/popup-light.png" width="320" alt="max-w popup in light mode" /> | <img src="assets/popup-dark.png" width="320" alt="max-w popup in dark mode" /> |
+
 ## Features
 
 - **Opt-in per site** — does nothing until you enable it for a site; your choice is saved.
