@@ -1,0 +1,53 @@
+{
+  "name": "max-w",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A Chrome extension that gives wide web pages a comfortable maximum reading width.",
+  "author": "Tim Schulz",
+  "license": "MIT",
+  "homepage": "https://github.com/TimSchulzRC/max-w#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TimSchulzRC/max-w.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TimSchulzRC/max-w/issues"
+  },
+  "keywords": [
+    "chrome-extension",
+    "readability",
+    "max-width",
+    "typography",
+    "reading"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "icons": "node scripts/generate-icons.mjs"
+  },
+  "dependencies": {
+    "@radix-ui/react-label": "^2.1.1",
+    "@radix-ui/react-slider": "^1.2.2",
+    "@radix-ui/react-slot": "^1.1.1",
+    "@radix-ui/react-switch": "^1.1.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.469.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.6.0"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.7.1",
+    "@tailwindcss/vite": "^4.3.2",
+    "@types/chrome": "^0.0.287",
+    "@types/node": "^22.20.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.3.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7"
+  }
+}
