@@ -58,8 +58,8 @@ function encodePng(width, height, rgba) {
 function drawIcon(size) {
   const rgba = Buffer.alloc(size * size * 4); // transparent by default
   const radius = size * 0.2; // rounded corner radius
-  const bg = [79, 70, 229, 255]; // indigo
-  const col = [255, 255, 255, 235]; // centered column
+  const bg = [23, 23, 23, 255]; // shadcn neutral-900 (--primary, light theme)
+  const col = [250, 250, 250, 255]; // shadcn neutral-50 (--primary-foreground)
   const colL = size * 0.32,
     colR = size * 0.68,
     colT = size * 0.16,
