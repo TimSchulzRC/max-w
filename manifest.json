@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "max-w",
-  "version": "1.0.1",
-  "description": "Adds a readable max-width container to websites that don't have one. Auto-detects the main content, or lets you pick the element yourself.",
+  "version": "1.0.2",
+  "description": "Gives wide web pages a comfortable maximum reading width. Auto-detects the content, or pick the element yourself.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
