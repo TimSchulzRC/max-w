@@ -35,11 +35,11 @@ function StatusLine({ last }: { last: RunResult | null }) {
       case "applied-manual":
         return <>Applied to your picked {el}.</>;
       case "already-contained":
-        return <>Already has a container ({el}) — nothing to do.</>;
+        return <>Already has a container ({el}) – nothing to do.</>;
       case "no-candidate":
         return <>Couldn't find a main content element. Try picking one.</>;
       case "disabled":
-        return <>Off — flip the switch to add a container on this site.</>;
+        return <>Off – flip the switch to add a container on this site.</>;
     }
   })();
   return <p className="text-muted-foreground min-h-4 text-xs leading-relaxed">{text}</p>;

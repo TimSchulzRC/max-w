@@ -1,4 +1,4 @@
-# Chrome Web Store listing — copy & paste
+# Chrome Web Store listing – copy & paste
 
 Everything you need for the store submission form.
 
@@ -8,7 +8,7 @@ Everything you need for the store submission form.
 max-w
 ```
 
-## Summary (short description, max 132 chars — already in manifest)
+## Summary (short description, max 132 chars – already in manifest)
 
 ```
 Gives wide web pages a comfortable maximum reading width. Auto-detects the content, or pick the element yourself.
@@ -17,17 +17,17 @@ Gives wide web pages a comfortable maximum reading width. Auto-detects the conte
 ## Detailed description
 
 ```
-Many websites — especially older blogs — let their main content stretch across your entire screen. On a large or ultrawide monitor that means very long lines of text that are tiring to read. max-w adds the container these sites are missing: it caps the content width and centers it, so lines stay a comfortable, readable length — without changing anything else about the page.
+Many websites – especially older blogs – let their main content stretch across your entire screen. On a large or ultrawide monitor that means very long lines of text that are tiring to read. max-w adds the container these sites are missing: it caps the content width and centers it, so lines stay a comfortable, readable length – without changing anything else about the page.
 
 Unlike reader-mode extensions, max-w keeps the site exactly as it is. It just fixes the width.
 
 FEATURES
-• Opt-in per site — does nothing until you turn it on for a site, and it remembers your choice.
-• Automatic detection — finds the main content and applies a sensible width.
-• Skips pages that already have a container — no double work.
-• Manual element picker — click the exact element you want to constrain.
-• Adjustable width — set the max width per site with a slider.
-• Scrollbar-safe — keeps the page's scrollbar at the edge of the window.
+• Opt-in per site – does nothing until you turn it on for a site, and it remembers your choice.
+• Automatic detection – finds the main content and applies a sensible width.
+• Skips pages that already have a container – no double work.
+• Manual element picker – click the exact element you want to constrain.
+• Adjustable width – set the max width per site with a slider.
+• Scrollbar-safe – keeps the page's scrollbar at the edge of the window.
 • Syncs your settings across your signed-in Chrome profiles.
 
 PRIVACY

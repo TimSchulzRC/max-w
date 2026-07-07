@@ -23,9 +23,9 @@ max-w does not collect, store, transmit, or sell any personal data.
 
 ## Permissions
 
-- `storage` — save and sync your per-site settings.
-- `activeTab` — let the popup apply changes to the tab you are currently viewing.
-- Host access (`<all_urls>`) — required so the extension can adjust the layout of any
+- `storage` – save and sync your per-site settings.
+- `activeTab` – let the popup apply changes to the tab you are currently viewing.
+- Host access (`<all_urls>`) – required so the extension can adjust the layout of any
   site you choose to enable it on. No site data is read or sent.
 
 ## Contact

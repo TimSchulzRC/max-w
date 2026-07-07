@@ -1,6 +1,6 @@
 # Contributing to max-w
 
-Thanks for your interest in improving max-w! Contributions of all kinds are welcome —
+Thanks for your interest in improving max-w! Contributions of all kinds are welcome –
 bug reports, feature ideas, and pull requests.
 
 ## Getting started
@@ -17,7 +17,7 @@ the content script or manifest, reload the extension and refresh the page.
 
 ## Before opening a pull request
 
-- Run `npm run build` — it typechecks with `tsc` and produces a clean build.
+- Run `npm run build` – it typechecks with `tsc` and produces a clean build.
 - Keep changes focused and describe the behavior in the PR.
 - Match the existing code style (TypeScript, no unnecessary comments).
 

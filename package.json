@@ -1,7 +1,7 @@
 {
   "name": "max-w",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "description": "Gives wide web pages a comfortable maximum reading width. Auto-detects the content, or pick the element yourself.",
   "author": "Tim Schulz",

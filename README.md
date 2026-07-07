@@ -2,7 +2,7 @@
 
 A Chrome extension that gives wide web pages a comfortable **maximum reading width**.
 
-Many sites — especially older blogs — let their main content stretch edge-to-edge, so
+Many sites – especially older blogs – let their main content stretch edge-to-edge, so
 on a wide monitor the text runs in very long, hard-to-read lines. **max-w** adds the
 missing container: it caps the content width and centers it, so lines stay a
 comfortable length. It's **opt-in per site**, skips pages that already have a
@@ -19,12 +19,12 @@ is wrong.
 
 ## Features
 
-- **Opt-in per site** — does nothing until you enable it for a site; your choice is saved.
-- **Automatic detection** — finds the main content (`main`, `article`, etc.) and applies a width.
-- **Skips contained pages** — leaves sites that already have a sensible max-width alone.
-- **Manual element picker** — click the exact element you want to constrain.
-- **Adjustable width** — set the max width per site with a slider.
-- **Scrollbar-safe** — keeps the page's scrollbar at the viewport edge.
+- **Opt-in per site** – does nothing until you enable it for a site; your choice is saved.
+- **Automatic detection** – finds the main content (`main`, `article`, etc.) and applies a width.
+- **Skips contained pages** – leaves sites that already have a sensible max-width alone.
+- **Manual element picker** – click the exact element you want to constrain.
+- **Adjustable width** – set the max width per site with a slider.
+- **Scrollbar-safe** – keeps the page's scrollbar at the viewport edge.
 - **Syncs** across your signed-in Chrome profiles via `chrome.storage.sync`.
 
 ## Install
@@ -51,7 +51,7 @@ Then load the generated **`dist/`** folder via **Load unpacked** as above.
 
 1. Open a page whose content runs too wide.
 2. Click the **max-w** toolbar icon.
-3. Flip **Enable on this site** — the content snaps to a centered, readable column.
+3. Flip **Enable on this site** – the content snaps to a centered, readable column.
 4. Optional: drag **Max width** to taste, or click **Pick element** and click the
    element you want to constrain if the automatic pick isn't right.
 5. **Reset** clears your settings for the current site.
