@@ -19,6 +19,11 @@ export const CZ_DEFAULTS = {
 
 export const CZ_SITE_PREFIX = "site:";
 
+// Older popups could save widths like 0 while the user typed, so clamp on read too.
+export function czClampWidth(px: number): number {
+  return Math.min(2000, Math.max(320, Math.round(px) || 320));
+}
+
 // Each site lives in its own sync key. The old layout kept every site in one
 // `sites` object, which hits the 8 KB per-item quota after about 100 sites.
 // That object is still read as a fallback and shrinks as sites get rewritten.
@@ -54,7 +59,7 @@ export async function czGetSite(host: string): Promise<ResolvedSite> {
   const site = all.site ?? {};
   return {
     enabled: site.enabled ?? all.globalEnabled,
-    maxWidth: site.maxWidth ?? all.defaultMaxWidth,
+    maxWidth: czClampWidth(site.maxWidth ?? all.defaultMaxWidth),
     selector: site.selector ?? null,
     hasOverride: all.site !== undefined,
     defaultMaxWidth: all.defaultMaxWidth,

@@ -1,11 +1,9 @@
-import { czGetSite, czSetSite, czResetSite, CZ_SITE_PREFIX } from "@/lib/storage";
+import { czGetSite, czSetSite, czResetSite, czClampWidth, CZ_SITE_PREFIX } from "@/lib/storage";
 import type { Message, RunResult, StateResponse, ActionResponse } from "@/lib/messages";
 
 const CZ_STYLE_ID = "containerizer-injected-style";
 const CZ_ATTR = "data-containerizer-container";
 const CZ_MODE_ATTR = "data-cz-mode";
-const CZ_MIN_WIDTH = 320;
-const CZ_MAX_WIDTH = 2000;
 
 let czLastResult: RunResult | null = null;
 let czPicker: { cleanup: () => void } | null = null;
@@ -269,8 +267,7 @@ chrome.runtime.onMessage.addListener(
             break;
           }
           case "SET_MAX_WIDTH": {
-            const maxWidth = Math.min(CZ_MAX_WIDTH, Math.max(CZ_MIN_WIDTH, Math.round(msg.maxWidth) || CZ_MIN_WIDTH));
-            await czSetSite(host, { maxWidth });
+            await czSetSite(host, { maxWidth: czClampWidth(msg.maxWidth) });
             czLastResult = await czRun();
             sendResponse({ ok: true, last: czLastResult });
             break;
@@ -316,9 +313,13 @@ async function czRerun(): Promise<void> {
   }
 }
 
-function czScheduleRerun(delay: number): void {
+function czScheduleRerun(delay: number, keepPending = false): void {
+  if (keepPending && czRerunTimer !== undefined) return;
   window.clearTimeout(czRerunTimer);
-  czRerunTimer = window.setTimeout(czRerun, delay);
+  czRerunTimer = window.setTimeout(() => {
+    czRerunTimer = undefined;
+    czRerun();
+  }, delay);
 }
 
 // Settings changed in another tab of the same site, or in the popup.
@@ -339,7 +340,9 @@ new MutationObserver(() => {
   if (!last || czRunning) return;
   const lost = last.applied && !document.querySelector(`[${CZ_ATTR}]`);
   const stillLooking = last.reason === "no-candidate" && Date.now() - czStartedAt < CZ_LATE_RETRY_MS;
-  if (lost || stillLooking) czScheduleRerun(300);
+  // Keep a pending retry instead of postponing it, so a page that mutates
+  // constantly still gets its container back.
+  if (lost || stillLooking) czScheduleRerun(300, true);
 }).observe(document.documentElement, { childList: true, subtree: true });
 
 czRerun();
