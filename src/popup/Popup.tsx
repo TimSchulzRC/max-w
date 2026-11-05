@@ -11,6 +11,7 @@ import type { ActionResponse, Message, RunResult, StateResponse } from "@/lib/me
 
 const MIN_WIDTH = 320;
 const MAX_WIDTH = 1600;
+const INPUT_MAX_WIDTH = 2000;
 
 function send<T>(tabId: number, msg: Message): Promise<T | null> {
   return new Promise((resolve) => {
@@ -74,9 +75,11 @@ export function Popup() {
   }
 
   // Update locally on every tick for a smooth drag; debounce the persisted change.
+  // Intermediate keystrokes ("8" on the way to "800") stay local; only in-range
+  // values reach the page.
   function onWidth(next: number) {
     setWidth(next);
-    if (tabId == null) return;
+    if (tabId == null || !(next >= MIN_WIDTH && next <= INPUT_MAX_WIDTH)) return;
     window.clearTimeout(widthTimer.current);
     widthTimer.current = window.setTimeout(async () => {
       const resp = await send<ActionResponse>(tabId, { type: "SET_MAX_WIDTH", maxWidth: next });
@@ -104,7 +107,8 @@ export function Popup() {
     return (
       <Card className="rounded-none border-0 shadow-none">
         <CardContent className="text-muted-foreground text-sm">
-          max-w can't run on this page.
+          max-w can't run on this page. If the page was open before max-w was installed or
+          updated, reload it and try again.
         </CardContent>
       </Card>
     );
@@ -134,10 +138,11 @@ export function Popup() {
                 type="number"
                 className="h-7 w-20 text-right"
                 min={MIN_WIDTH}
-                max={2000}
+                max={INPUT_MAX_WIDTH}
                 step={10}
                 value={width}
                 onChange={(e) => onWidth(Number(e.target.value))}
+                onBlur={() => onWidth(Math.min(INPUT_MAX_WIDTH, Math.max(MIN_WIDTH, width || MIN_WIDTH)))}
               />
               px
             </div>
