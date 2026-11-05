@@ -1,4 +1,4 @@
-import { czGetSite, czSetSite, czResetSite } from "@/lib/storage";
+import { czGetSite, czSetSite, czResetSite, czClampWidth, CZ_SITE_PREFIX } from "@/lib/storage";
 import type { Message, RunResult, StateResponse, ActionResponse } from "@/lib/messages";
 
 const CZ_STYLE_ID = "containerizer-injected-style";
@@ -30,7 +30,8 @@ function czIsAlreadyContained(el: Element): boolean {
   let node: Element | null = el;
   while (node && node !== document.documentElement) {
     const cs = getComputedStyle(node);
-    if (cs.maxWidth && cs.maxWidth !== "none") {
+    // Percentages stay unresolved in computed styles ("100%"), so only px counts.
+    if (cs.maxWidth.endsWith("px")) {
       const px = czParsePx(cs.maxWidth);
       if (px && px < vw * 0.95) return true;
     }
@@ -61,7 +62,7 @@ function czScoreBestCandidate(): HTMLElement | null {
   for (const el of document.body.querySelectorAll<HTMLElement>("main, article, section, div")) {
     const rect = el.getBoundingClientRect();
     if (rect.width < vw * 0.7) continue;
-    const textLen = el.innerText ? el.innerText.trim().length : 0;
+    const textLen = czTextLength(el);
     if (textLen < 200) continue;
     if (textLen > bestScore) {
       bestScore = textLen;
@@ -71,10 +72,21 @@ function czScoreBestCandidate(): HTMLElement | null {
   return best;
 }
 
+function czTextLength(el: HTMLElement): number {
+  return el.innerText ? el.innerText.trim().length : 0;
+}
+
+// A preferred selector only counts if it matches one visible element that holds a
+// real share of the page text. That skips a list of <article> teasers or a small
+// `.content` box in a sidebar, and lets the scorer find the actual wrapper.
 function czFindCandidate(): HTMLElement | null {
+  const bodyText = document.body ? czTextLength(document.body) : 0;
   for (const sel of CZ_PREFERRED) {
-    const el = document.querySelector<HTMLElement>(sel);
-    if (el && el.getBoundingClientRect().width > 0) return el;
+    const visible = [...document.querySelectorAll<HTMLElement>(sel)].filter(
+      (el) => el.getBoundingClientRect().width > 0
+    );
+    if (visible.length !== 1) continue;
+    if (czTextLength(visible[0]) >= bodyText * 0.3) return visible[0];
   }
   return czScoreBestCandidate();
 }
@@ -208,6 +220,14 @@ function czStartPicker(): void {
     cleanup();
   };
 
+  // Pages often act on pointerdown/mousedown (menus, links, drag handlers), so
+  // swallow the whole press, not only the click.
+  const onPress = (e: Event) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  const PRESS_EVENTS = ["pointerdown", "pointerup", "mousedown", "mouseup"] as const;
+
   const onKey = (e: KeyboardEvent) => {
     if (e.key === "Escape") cleanup();
   };
@@ -216,6 +236,7 @@ function czStartPicker(): void {
     document.removeEventListener("mousemove", onMove, true);
     document.removeEventListener("click", onClick, true);
     document.removeEventListener("keydown", onKey, true);
+    PRESS_EVENTS.forEach((t) => document.removeEventListener(t, onPress, true));
     box.remove();
     hint.remove();
     czPicker = null;
@@ -224,6 +245,7 @@ function czStartPicker(): void {
   document.addEventListener("mousemove", onMove, true);
   document.addEventListener("click", onClick, true);
   document.addEventListener("keydown", onKey, true);
+  PRESS_EVENTS.forEach((t) => document.addEventListener(t, onPress, true));
   czPicker = { cleanup };
 }
 
@@ -231,47 +253,96 @@ chrome.runtime.onMessage.addListener(
   (msg: Message, _sender, sendResponse: (r: StateResponse | ActionResponse) => void) => {
     (async () => {
       const host = location.hostname;
-      switch (msg.type) {
-        case "GET_STATE": {
-          const site = await czGetSite(host);
-          sendResponse({ host, ...site, last: czLastResult });
-          break;
+      try {
+        switch (msg.type) {
+          case "GET_STATE": {
+            const site = await czGetSite(host);
+            sendResponse({ host, ...site, last: czLastResult });
+            break;
+          }
+          case "SET_ENABLED": {
+            await czSetSite(host, { enabled: msg.enabled });
+            czLastResult = await czRun();
+            sendResponse({ ok: true, last: czLastResult });
+            break;
+          }
+          case "SET_MAX_WIDTH": {
+            await czSetSite(host, { maxWidth: czClampWidth(msg.maxWidth) });
+            czLastResult = await czRun();
+            sendResponse({ ok: true, last: czLastResult });
+            break;
+          }
+          case "START_PICKER": {
+            czStartPicker();
+            sendResponse({ ok: true });
+            break;
+          }
+          case "RESET_SITE": {
+            await czResetSite(host);
+            czLastResult = await czRun();
+            sendResponse({ ok: true, last: czLastResult });
+            break;
+          }
         }
-        case "SET_ENABLED": {
-          await czSetSite(host, { enabled: msg.enabled });
-          czLastResult = await czRun();
-          sendResponse({ ok: true, last: czLastResult });
-          break;
-        }
-        case "SET_MAX_WIDTH": {
-          await czSetSite(host, { maxWidth: msg.maxWidth });
-          czLastResult = await czRun();
-          sendResponse({ ok: true, last: czLastResult });
-          break;
-        }
-        case "START_PICKER": {
-          czStartPicker();
-          sendResponse({ ok: true });
-          break;
-        }
-        case "RESET_SITE": {
-          await czResetSite(host);
-          czLastResult = await czRun();
-          sendResponse({ ok: true, last: czLastResult });
-          break;
-        }
+      } catch (err) {
+        console.warn("max-w:", err);
+        sendResponse({ ok: false, last: czLastResult });
       }
     })();
     return true; // keep the channel open for the async sendResponse
   }
 );
 
-(async function czInit() {
-  czLastResult = await czRun();
-  let tries = 0;
-  while (czLastResult && czLastResult.reason === "no-candidate" && tries < 5) {
-    await new Promise((r) => setTimeout(r, 600));
-    czLastResult = await czRun();
-    tries++;
+let czRunning = false;
+let czRerunPending = false;
+let czRerunTimer: number | undefined;
+
+async function czRerun(): Promise<void> {
+  if (czRunning) {
+    czRerunPending = true;
+    return;
   }
-})();
+  czRunning = true;
+  try {
+    do {
+      czRerunPending = false;
+      czLastResult = await czRun();
+    } while (czRerunPending);
+  } finally {
+    czRunning = false;
+  }
+}
+
+function czScheduleRerun(delay: number, keepPending = false): void {
+  if (keepPending && czRerunTimer !== undefined) return;
+  window.clearTimeout(czRerunTimer);
+  czRerunTimer = window.setTimeout(() => {
+    czRerunTimer = undefined;
+    czRerun();
+  }, delay);
+}
+
+// Settings changed in another tab of the same site, or in the popup.
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== "sync") return;
+  const key = CZ_SITE_PREFIX + location.hostname;
+  if (key in changes || "sites" in changes || "globalEnabled" in changes || "defaultMaxWidth" in changes) {
+    czScheduleRerun(50);
+  }
+});
+
+// Single-page apps replace their content after load, and some pages render it late.
+// Re-run when the marked container disappears, or while nothing was found yet.
+const CZ_LATE_RETRY_MS = 15000;
+const czStartedAt = Date.now();
+new MutationObserver(() => {
+  const last = czLastResult;
+  if (!last || czRunning) return;
+  const lost = last.applied && !document.querySelector(`[${CZ_ATTR}]`);
+  const stillLooking = last.reason === "no-candidate" && Date.now() - czStartedAt < CZ_LATE_RETRY_MS;
+  // Keep a pending retry instead of postponing it, so a page that mutates
+  // constantly still gets its container back.
+  if (lost || stillLooking) czScheduleRerun(300, true);
+}).observe(document.documentElement, { childList: true, subtree: true });
+
+czRerun();
